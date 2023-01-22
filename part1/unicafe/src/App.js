@@ -8,6 +8,14 @@ const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</bu
 const StatisticLine = ({text,type}) => <p>{text} {type}</p>
 
 const Statistics = ({good,neutral,bad,all}) => {
+  if(all === 0){
+    return (
+      <>
+        <StatisticHeader />
+        <p>No feedback given</p>
+      </>
+    )
+  }
   return(
     <>
       <StatisticHeader />
