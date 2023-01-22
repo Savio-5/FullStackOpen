@@ -5,7 +5,7 @@ const StatisticHeader = () => <h1>statistics</h1>
 
 const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</button>
 
-const StatisticLine = ({text,type}) => <p>{text} {type}</p>
+const StatisticLine = ({text,value}) => <p>{text} {value}</p>
 
 const Statistics = ({good,neutral,bad,all}) => {
   if(all === 0){
@@ -19,12 +19,12 @@ const Statistics = ({good,neutral,bad,all}) => {
   return(
     <>
       <StatisticHeader />
-      <StatisticLine text='good' type={good}/>
-      <StatisticLine text='neutral' type={neutral}/>
-      <StatisticLine text='bad' type={bad}/>
-      <StatisticLine text='all' type={all}/>
-      <StatisticLine text='average' type={(good - bad) / all}/>
-      <StatisticLine text='positive' type={((good / all) * 100) + ' %' }/>
+      <StatisticLine text='good' value={good}/>
+      <StatisticLine text='neutral' value={neutral}/>
+      <StatisticLine text='bad' value={bad}/>
+      <StatisticLine text='all' value={all}/>
+      <StatisticLine text='average' value={(good - bad) / all}/>
+      <StatisticLine text='positive' value={((good / all) * 100) + ' %' }/>
     </>
   )
 }
