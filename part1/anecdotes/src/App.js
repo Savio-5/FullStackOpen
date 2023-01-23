@@ -1,6 +1,28 @@
 import { useState } from 'react'
 
+const Header = ({title,anecdotes,selected,vote}) => {
+  return (
+    <>
+      <h1>{title}</h1>
+      <div>{anecdotes[selected]}</div>
+      <div>has {vote[selected]} votes</div>
+    </>
+  )
+}
+
 const Button = ({handleClick,text}) => <button onClick={handleClick}>{text}</button>
+
+const Footer = ({title,anecdotes,vote}) => {
+  const best = vote.indexOf(Math.max(...vote))
+
+  return(
+    <div>
+      <h1>{title}</h1>
+      <div>{anecdotes[best]}</div>
+      <div>has {vote[best]} votes</div>
+    </div>
+  )
+}
 
 const App = () => {
   const anecdotes = [
@@ -17,26 +39,22 @@ const App = () => {
   const copy = [...anecdotes];
   const [selected, setSelected] = useState(0)
 
-  const [vote, setVote] = useState({
+  const [vote, setVote] = useState([
     ...copy.fill(0)
-  })
+  ])
 
   const giveVote = () => {
-    const newVote = {...vote}
+    const newVote = [...vote]
     newVote[selected] += 1
     setVote(newVote)
   }
-  
+
   return (
     <div>
-      <div>
-        {anecdotes[selected]}
-      </div>
-      <div>
-        has {vote[selected]} votes
-      </div>
+      <Header title='Anecdotes of the day' anecdotes={anecdotes} selected={selected} vote={vote}/>
       <Button handleClick={() => giveVote()} text='vote'/>
       <Button handleClick={() => setSelected(Math.floor(Math.random() * anecdotes.length))} text='next anecdote'/>
+      <Footer title='Anecdotes with most votes' anecdotes={anecdotes} vote={vote}/>
     </div>
   )
 }
