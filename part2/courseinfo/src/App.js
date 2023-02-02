@@ -14,7 +14,7 @@ const Content = ({ parts }) => {
   return (
     <>
       {parts.map((parts) => (
-        <Part part={parts.name} exercises={parts.exercises} />
+        <Part key={parts.id} part={parts.name} exercises={parts.exercises} />
       ))}
     </>
   );
