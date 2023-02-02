@@ -11,13 +11,13 @@ const Part = ({ part, exercises }) => {
 };
 
 const Total = ({parts}) => {
-  let count = parts.reduce((sum,parts) => {
+  let total = parts.reduce((sum,parts) => {
     return sum + parts.exercises;
   },0);
 
   return (
     <div>
-      <p>total of {count} exercises</p>
+      <p>total of {total} exercises</p>
     </div>
   )
 }
