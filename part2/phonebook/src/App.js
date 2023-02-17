@@ -40,6 +40,15 @@ const App = () => {
     setNewNumber('')
   }
 
+  const deletePerson = (id,name) => {
+    if(window.confirm(`Delete ${name} ?`)) {
+      personService.remove(id).then(response => {
+        setPersons(persons.filter(person => person.id !== id))
+        setNewPerson(persons.filter(person => person.id !== id))
+      })
+    }
+  }
+
   function handleFilter(event) {
     setNewFilter(event.target.value)
     setNewPerson(persons.filter(person => person.name.toLowerCase().includes(event.target.value.toLowerCase())))
@@ -71,7 +80,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons newPerson={newPerson} />
+      <Persons newPerson={newPerson} deletePerson={deletePerson}/>
     </div>
   )
 }
