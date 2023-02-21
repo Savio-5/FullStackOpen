@@ -2,6 +2,7 @@ import { useState,useEffect } from 'react'
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 import personService from "./services/persons";
 
 const App = () => {
@@ -11,6 +12,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [newPerson, setNewPerson] = useState([])
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     personService.getAll().then(allPerson => {
@@ -18,6 +20,13 @@ const App = () => {
       setNewPerson(allPerson)
     })
   }, [])
+
+  useEffect(() => {
+    setTimeout(
+      () => setMessage(null),
+      5000
+    )
+  }, [message])
 
   function handleEvent(event) {
     event.preventDefault()
@@ -29,6 +38,10 @@ const App = () => {
         personService
         .update(person.id,changedPerson)
         .then(updatePerson => {
+          setMessage({
+            error: 'alert',
+            name: `Updated ${updatePerson.name}`,
+          })
           setPersons(persons.map(person => person.id !== updatePerson.id ? person : updatePerson))
           setNewPerson(persons.map(person => person.id !== updatePerson.id ? person : updatePerson))
         })
@@ -41,7 +54,10 @@ const App = () => {
       }
 
       personService.create(personObject).then(createPerson => {
-        //console.log(createPerson)
+        setMessage({
+          error: 'success',
+          name: `Added ${createPerson.name}`,
+        })
         setPersons(persons.concat(createPerson))
         setNewPerson(persons.concat(createPerson))
       })
@@ -53,6 +69,10 @@ const App = () => {
   const deletePerson = (id,name) => {
     if(window.confirm(`Delete ${name} ?`)) {
       personService.remove(id).then(response => {
+        setMessage({
+          error: 'error',
+          name: `Deleted ${name}`,
+        })
         setPersons(persons.filter(person => person.id !== id))
         setNewPerson(persons.filter(person => person.id !== id))
       })
@@ -75,6 +95,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={message} />
 
       <Filter newFilter={newFilter} handleFilter={handleFilter} />
 
