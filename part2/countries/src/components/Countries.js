@@ -8,6 +8,7 @@ const Countries = ({ countriesToShow }) => {
         return <CountryData country={countriesToShow[0]} />;
     } else if (countriesToShow.length <= 10) {
         return (
+            <>
             <div>
                 {countriesToShow.map((country) => (
                     <div key={country.name.official}>
@@ -17,6 +18,8 @@ const Countries = ({ countriesToShow }) => {
                 ))}
                 {country ? <CountryData country={country} /> : null}
             </div>
+            </>
+            
         );
     } else if (countriesToShow.length > 10) {
         return <div>Too many matches, specify another filter</div>;
