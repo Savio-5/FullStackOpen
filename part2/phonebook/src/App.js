@@ -75,6 +75,13 @@ const App = () => {
         })
         setPersons(persons.filter(person => person.id !== id))
         setNewPerson(persons.filter(person => person.id !== id))
+      }).catch(error => {
+        setMessage({
+          error: 'error',
+          name: `Information of ${name} has already been removed from server`,
+        })
+        setPersons(persons.filter(person => person.id !== id))
+        setNewPerson(persons.filter(person => person.id !== id))
       })
     }
   }
