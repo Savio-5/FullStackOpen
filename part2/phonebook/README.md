@@ -1,3 +1,3 @@
 # Vercel FrontEnd
 
-https://full-stack-open.vercel.app/api/persons
+https://phonebook-frontend-gamma.vercel.app/
