@@ -4,7 +4,7 @@ const PORT = 3001
 
 app.use(express.json())
 
-const person = [
+const persons = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
@@ -30,13 +30,24 @@ const person = [
 
 app.get('/api/persons', (req, res) => {
     // In Postman, select GET and enter http://localhost:3001/api/persons
-    res.json(person)
+    res.json(persons)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const person = persons.find(person => person.id === id)
+    if (person) {
+        res.status(200).json(person)
+    } else {
+        res.status(404).json({error: 'person not found'})
+    }
+})
+
+
 app.get('/info', (req, res) => {
-    const info = `Phonebook has info for ${person.length} people <br><br>
+    const info = `Phonebook has info for ${persons.length} people <br><br>
     ${new Date()}`
-    res.send(info)
+    res.status(200).send(info)
 })
 
 app.listen(PORT, () => {
