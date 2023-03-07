@@ -2,8 +2,9 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+const Person = require('./models/personModel')
 
-const PORT = 3001
 
 app.use(cors())
 app.use(express.json())
@@ -16,32 +17,38 @@ morgan.token("data", (request) => {
 });
 
 let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
+    {
+        "id": 1,
+        "name": "Arto Hellas",
+        "number": "040-123456"
     },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
+    {
+        "id": 2,
+        "name": "Ada Lovelace",
+        "number": "39-44-5323523"
     },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
+    {
+        "id": 3,
+        "name": "Dan Abramov",
+        "number": "12-43-234345"
     },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
+    {
+        "id": 4,
+        "name": "Mary Poppendieck",
+        "number": "39-23-6423122"
     }
 ]
 
 
 app.get('/api/persons', (req, res) => {
-    // In Postman, select GET and enter http://localhost:3001/api/persons
-    res.json(persons)
+    try {
+        Person.find({}).then(result => {
+            mongoose.connection.close()
+            res.json(result)
+        })
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -50,7 +57,7 @@ app.get('/api/persons/:id', (req, res) => {
     if (person) {
         res.status(200).json(person)
     } else {
-        res.status(404).json({error: 'person not found'})
+        res.status(404).json({ error: 'person not found' })
     }
 })
 
@@ -65,31 +72,48 @@ app.post('/api/persons', (req, res) => {
     const body = req.body
 
     if (!body.name) {
-        return res.status(404).json({error: 'name missing'})
+        return res.status(404).json({ error: 'name missing' })
     }
     if (!body.number) {
-        return res.status(404).json({error: 'number missing'})
+        return res.status(404).json({ error: 'number missing' })
     }
     if (persons.find(person => person.name === body.name)) {
-        return res.status(406).json({error: 'name must be unique'})
+        return res.status(406).json({ error: 'name must be unique' })
     }
 
-    const person = {
-        id: Math.floor(Math.random() * 1000000),
+    const person = new Person({
         name: body.name,
         number: body.number
+    })
+
+    try {
+        person.save().then(result => {
+            if (result) {
+                console.log(`added ${result.name} number ${result.number} to phonebook`)
+            }
+            Person.find({}).then(allresult => {
+                mongoose.connection.close()
+                res.status(201).json(allresult)
+            })
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'something went wrong' })
     }
-    persons = persons.concat(person)
-    res.status(201).json(person)
 })
 
 
 app.get('/info', (req, res) => {
-    const info = `Phonebook has info for ${persons.length} people <br><br>
-    ${new Date()}`
-    res.status(200).send(info)
+    try {
+        Person.find({}).then(result => {
+            const info = `Phonebook has info for ${result.length} people <br><br>
+            ${new Date()}`
+            res.status(200).send(info)
+        })
+    } catch (error) {
+        res.status(500).json({ error: 'something went wrong' })
+    }
 })
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+app.listen(process.env.PORT || 3001, () => {
+    console.log(`Server running on port ${process.env.PORT || 3001}`)
 })
