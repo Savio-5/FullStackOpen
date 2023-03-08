@@ -5,13 +5,17 @@ require('dotenv').config({
 
 mongoose.set('strictQuery', false)
 
-mongoose.connect(process.env.MONGODB_URI)
-.then(result => {
-    console.log('connected to MongoDB')
-})
-.catch(error => {
-    console.log(error)
-})
+async function connect() {
+    try{
+        await mongoose.connect(process.env.MONGODB_URI).then(result => {
+            console.log('connected to MongoDB')
+        })
+    }catch(error){
+        console.log(error)
+    }
+}
+
+connect()
 
 const personSchema = new mongoose.Schema({
     name: String,
