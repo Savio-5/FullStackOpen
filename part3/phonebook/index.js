@@ -65,12 +65,12 @@ app.post('/api/persons', (req, res, next) => {
     Person.exists({ name: body.name })
         .then(result => {
             if (!result) {
-                const person = new Person({
-                    name: body.name,
-                    number: body.number
-                })
-
                 try {
+                    const person = new Person({
+                        name: body.name,
+                        number: body.number
+                    })
+
                     person.save().then(result => {
                         if (result) {
                             console.log(`added ${result.name} number ${result.number} to phonebook`)
@@ -78,7 +78,7 @@ app.post('/api/persons', (req, res, next) => {
                         Person.find({}).then(allresult => {
                             res.status(201).json(allresult)
                         })
-                    })
+                    }).catch(error => next(error))
                 } catch (error) {
                     next(error)
                 }
@@ -86,7 +86,7 @@ app.post('/api/persons', (req, res, next) => {
                 res.status(406).json({ error: 'name must be unique' })
             }
         }
-    )
+    ).catch(error => next(error))
 })
 
 app.put("/api/persons/:id", (req, res, next) => {
@@ -127,6 +127,8 @@ app.use((error, req, res, next) => {
     console.error(error)
     if (error.name === 'CastError') {
         res.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        res.status(400).json({ error: error.message })
     } else {
         res.status(500).send({ error: 'something went wrong' })
     }

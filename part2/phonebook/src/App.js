@@ -60,6 +60,14 @@ const App = () => {
         })
         setPersons(persons.concat(createPerson))
         setNewPerson(persons.concat(createPerson))
+      }).catch(error => {
+        
+        setMessage({
+          error: 'error',
+          name: error.response.data.error,
+        })
+
+        // console.log(error.response.data.error)
       })
     }
     setNewName('')
