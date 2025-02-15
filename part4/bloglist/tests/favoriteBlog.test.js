@@ -1,3 +1,5 @@
+const { test, describe } = require('node:test')
+const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
 describe('favorite blog', () => {
@@ -54,7 +56,7 @@ describe('favorite blog', () => {
 
 	test('The blog has the most likes', () => {
 		const result = listHelper.favoriteBlog(listBlogs)
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			title: 'Canonical string reduction',
 			author: 'Edsger W. Dijkstra',
 			likes: 12

@@ -1,3 +1,5 @@
+const { test, describe } = require('node:test')
+const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
 describe('most blogs ', () => {
@@ -54,7 +56,7 @@ describe('most blogs ', () => {
 
 	test('who has the largest amount of blogs', () => {
 		const result = listHelper.mostBlogs(listBlogs)
-		expect(result).toEqual({
+		assert.deepStrictEqual(result, {
 			author: 'Robert C. Martin',
 			blogs: 3
 		})
