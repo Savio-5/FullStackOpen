@@ -31,4 +31,37 @@ router.post('/blogs', async (req, res) => {
     }
 })
 
+router.delete('/blogs/:id', async (req, res) => {
+    try {
+        const blog = await Blog.findByIdAndDelete(req.params.id)
+        if (!blog) {
+            return res.status(404).json({ error: 'blog not found' })
+        }
+        res.status(204).end()
+    } catch (error) {
+        logger.error(error)
+        res.status(500).json({ error: 'something went wrong' })
+    }
+})
+
+router.put('/blogs/:id', async (req, res) => {
+    const { id } = req.params
+    const { likes } = req.body
+
+    try {
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            id,
+            { likes },
+            { new: true, runValidators: true, context: 'query'  }
+        )
+        if (!updatedBlog) {
+            return res.status(404).json({ error: 'blog not found' })
+        }
+        res.json(updatedBlog)
+    } catch (error) {
+        logger.error(error)
+        res.status(500).json({ error: 'something went wrong' })
+    }
+})
+
 module.exports = router
