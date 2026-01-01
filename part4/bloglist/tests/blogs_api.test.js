@@ -7,20 +7,33 @@ const app = require('../app')
 const api = supertest(app)
 
 const { Blog } = require('../models/blogModel')
-const { listBlogs } = require('./test_helper.test')
+const { listBlogs, dummyBlog, loginUser } = require('./test_helper.test')
+const { User } = require('../models/userModel')
+
+let token;
 
 beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(listBlogs)
+    await User.deleteMany({})
+
+    await api.post('/api/users').send(loginUser)
+    const loginRes = await api.post('/api/login').send(loginUser)
+
+    await api.post('/api/blogs')
+        .set('Authorization', `Bearer ${loginRes.body.token}`)
+        .send(dummyBlog)
+
+    token = loginRes.body.token;
 })
 
-describe('when there are initially some blogs saved', () => {
+describe('when there are initially some blogs saved', async () => {
     test('blogs are returned as JSON and contain the correct amount', async () => {
         const response = await api.get('/api/blogs')
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
-        assert.strictEqual(response.body.length, listBlogs.length)
+        assert.strictEqual(response.body.length, listBlogs.length + 1)
     })
 
     test('blog posts have an id property', async () => {
@@ -34,20 +47,20 @@ describe('when there are initially some blogs saved', () => {
     test('a valid blog can be added', async () => {
         const newBlog = { title: 'New Blog', author: 'John Doe', url: 'https://example.com/new', likes: 10 }
 
-        await api.post('/api/blogs')
+        await api.post('/api/blogs').set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
 
         const response = await api.get('/api/blogs')
-        assert.strictEqual(response.body.length, listBlogs.length + 1)
+        assert.strictEqual(response.body.length, listBlogs.length + 2)
         assert.ok(response.body.map(b => b.title).includes('New Blog'))
     })
 
     test('if likes property is missing, it defaults to 0', async () => {
         const newBlog = { title: 'No Likes Blog', author: 'Jane Doe', url: 'https://example.com/no-likes' }
 
-        const response = await api.post('/api/blogs')
+        const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -56,41 +69,41 @@ describe('when there are initially some blogs saved', () => {
     })
 
     test('blog without title or url is not added', async () => {
-        await api.post('/api/blogs').send({ author: 'Unknown', url: 'https://example.com' }).expect(400)
-        await api.post('/api/blogs').send({ title: 'Missing URL', author: 'Unknown' }).expect(400)
+        await api.post('/api/blogs').send({ author: 'Unknown', url: 'https://example.com' }).set('Authorization', `Bearer ${token}`).expect(400)
+        await api.post('/api/blogs').send({ title: 'Missing URL', author: 'Unknown' }).set('Authorization', `Bearer ${token}`).expect(400)
 
         const response = await api.get('/api/blogs')
-        assert.strictEqual(response.body.length, listBlogs.length)
+        assert.strictEqual(response.body.length, listBlogs.length + 1)
     })
 })
 
-describe('deletion and updating of blogs', () => {
+describe('deletion and updating of blogs', async () => {
     test('a blog can be deleted', async () => {
         const blogsAtStart = await api.get('/api/blogs')
-        const blogToDelete = blogsAtStart.body[0]
+        const blogToDelete = blogsAtStart.body.find(b => b.user !== undefined)
 
-        await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
-
+        await api.delete(`/api/blogs/${blogToDelete.id}`).set('Authorization', `Bearer ${token}`).expect(204)
         const blogsAtEnd = await api.get('/api/blogs')
-        assert.strictEqual(blogsAtEnd.body.length, listBlogs.length - 1)
+        assert.strictEqual(blogsAtEnd.body.length, listBlogs.length)
 
         const titles = blogsAtEnd.body.map(b => b.title)
         assert.ok(!titles.includes(blogToDelete.title))
     })
 
-    test('deleting a non-existent blog returns 404', async () => {
-        const nonExistentId = '5a422bc61b54a676234d17fd'
+    test('deleting a non-existent blog returns 401', async () => {
+        const nonExistentId = '5a422bc61b54a676234d17fd' // blog only can be deleted by creator
 
-        await api.delete(`/api/blogs/${nonExistentId}`).expect(404)
+        await api.delete(`/api/blogs/${nonExistentId}`).set('Authorization', `Bearer ${token}`).expect(401)
     })
 
     test('a blog can be updated', async () => {
         const blogsAtStart = await api.get('/api/blogs')
-        const blogToUpdate = blogsAtStart.body[0]
+        const blogToUpdate = blogsAtStart.body.find(b => b.user !== undefined)
 
         const updatedLikes = blogToUpdate.likes + 1
 
         const response = await api.put(`/api/blogs/${blogToUpdate.id}`)
+            .set('Authorization', `Bearer ${token}`)
             .send({ likes: updatedLikes })
             .expect(200)
             .expect('Content-Type', /application\/json/)
@@ -102,7 +115,7 @@ describe('deletion and updating of blogs', () => {
     test('updating a non-existent blog returns 404', async () => {
         const nonExistentId = '5a422bc61b54a676234d17fd'
 
-        await api.put(`/api/blogs/${nonExistentId}`)
+        await api.put(`/api/blogs/${nonExistentId}`).set('Authorization', `Bearer ${token}`)
             .send({ likes: 100 })
             .expect(404)
     })

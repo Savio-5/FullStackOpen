@@ -60,7 +60,22 @@ const listBlogs = [
     }
 ]
 
+const dummyBlog = {
+    title: 'New Blog at start',
+    author: 'John Doe',
+    url: 'https://example.com/test-start',
+    likes: 2
+}
+
+const loginUser = {
+    username: 'root',
+    password: 'secret',
+    name: 'Superuser'
+}
+
 module.exports = {
-  listWithOneBlog,
-  listBlogs,
+    listWithOneBlog,
+    listBlogs,
+    dummyBlog,
+    loginUser
 }
