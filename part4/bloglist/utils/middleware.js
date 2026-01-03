@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { SECRET } = require('./config')
 const { User } = require('../models/userModel')
+const logger = require('./logger').default
 
 const errorHandler = (error, request, response, next) => {
     logger.error('error.message:', error.message)
