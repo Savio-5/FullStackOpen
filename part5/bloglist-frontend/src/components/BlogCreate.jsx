@@ -1,19 +1,25 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const BlogCreate = ({ setBlogs, setUser, notify }) => {
+const BlogCreate = ({ setBlogs, setUser, notify, onCreated, user }) => {
   const [blog, setBlog] = useState({ title: '', author: '', url: '' })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
       const created = await blogService.create(blog)
-      console.log(created)
+      const merged = {
+        ...created,
+        user: typeof created.user === 'string' ? user : created.user
+      }
 
-      setBlogs(prev => prev.concat(created))
+      setBlogs(prev => prev.concat(merged))
       setBlog({ title: '', author: '', url: '' })
 
       notify(`a new blog ${created.title} by ${created.author} added`, 'success')
+      if (onCreated) {
+        onCreated()
+      }
     } catch (error) {
       if (error.response?.status === 401) {
         notify('Session expired. Please login again.', 'error')
