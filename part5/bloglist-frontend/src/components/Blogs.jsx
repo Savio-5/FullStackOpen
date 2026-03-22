@@ -3,7 +3,7 @@ import BlogCreate from './BlogCreate'
 import Togglable from './Togglable'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, onLike, onRemove, canRemove }) => {
+export const Blog = ({ blog, onLike, onRemove, canRemove }) => {
 	const [showDetails, setShowDetails] = useState(false)
 
 	const blogStyle = {
@@ -15,17 +15,17 @@ const Blog = ({ blog, onLike, onRemove, canRemove }) => {
 	}
 
 	return (
-		<div style={blogStyle}>
+		<div style={blogStyle} className="blog">
 			<div>
-				{blog.title} {blog.author}
+				<span className="blogTitleAuthor">{blog.title} {blog.author}</span>
 				<button onClick={() => setShowDetails(prev => !prev)}>
 					{showDetails ? 'hide' : 'view'}
 				</button>
 			</div>
 			{showDetails && (
-				<div>
-					<div>{blog.url}</div>
-					<div>
+				<div className="blogDetails">
+					<div className="blogUrl">{blog.url}</div>
+					<div className="blogLikes">
 						likes {blog.likes}
 						<button onClick={() => onLike(blog)}>like</button>
 					</div>

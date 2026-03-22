@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const BlogCreate = ({ setBlogs, setUser, notify, onCreated, user }) => {
+const BlogCreate = ({ setBlogs, setUser, notify, onCreated, onCreate, user }) => {
 	const [blog, setBlog] = useState({ title: '', author: '', url: '' })
 
 	const handleSubmit = async (e) => {
@@ -17,6 +17,13 @@ const BlogCreate = ({ setBlogs, setUser, notify, onCreated, user }) => {
 			setBlog({ title: '', author: '', url: '' })
 
 			notify(`a new blog ${created.title} by ${created.author} added`, 'success')
+			if (onCreate) {
+				onCreate({
+					title: created.title,
+					author: created.author,
+					url: created.url
+				})
+			}
 			if (onCreated) {
 				onCreated()
 			}
@@ -38,10 +45,10 @@ const BlogCreate = ({ setBlogs, setUser, notify, onCreated, user }) => {
 			<h2>create new</h2>
 			<form onSubmit={handleSubmit}>
 				<div>
-					<label>
-						title
-						<input type="text" name="title" value={blog.title} onChange={({ target }) => setBlog({ ...blog, title: target.value })} />
-					</label>
+				<label>
+					title
+					<input type="text" name="title" value={blog.title} onChange={({ target }) => setBlog({ ...blog, title: target.value })} />
+				</label>
 				</div>
 				<div>
 					<label>
