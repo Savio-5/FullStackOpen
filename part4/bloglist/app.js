@@ -27,6 +27,10 @@ app.use('/api/blogs', require('./routes/blogs'))
 app.use('/api/users', require('./routes/users'))
 app.use('/api/login', require('./routes/login'))
 
+if (process.env.NODE_ENV === 'test') {
+    app.use('/api/testing', require('./routes/testing'))
+}
+
 app.use(errorHandler)
 
 app.listen(PORT, () => {
